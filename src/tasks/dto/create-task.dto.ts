@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsString } from 'class-validator'
+import { Transform } from 'class-transformer';
+import { IsIn, IsNotEmpty, IsString } from 'class-validator'
 
 export class CreateTaskDto {
     @ApiProperty({
@@ -7,7 +8,7 @@ export class CreateTaskDto {
         example: 'Jogar bola',
     })
     @IsNotEmpty({ message: 'O campo title não pode estar vazio' })
-    @IsString()
+    @Transform(({ value }) => value.trim())
     title: string;
 
     @ApiProperty({
@@ -21,6 +22,8 @@ export class CreateTaskDto {
         description: 'Status da task',
         example: 'pendente',
     })
-    @IsBoolean()
-    status: boolean;
+    @IsString()
+    @IsIn(['pendente', 'concluida'], { message: 'O status deve ser "pendente" ou "concluida"' })
+    @Transform(({ value }) => value.toLowerCase())
+    status: 'pendente' | 'concluida' = 'pendente';
 }

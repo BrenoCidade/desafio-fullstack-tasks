@@ -1,7 +1,8 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateTaskDto } from './create-task.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsIn, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class UpdateTaskDto extends PartialType(CreateTaskDto) {
     @ApiProperty({
@@ -25,6 +26,7 @@ export class UpdateTaskDto extends PartialType(CreateTaskDto) {
         example: 'pendente',
     })
     @IsOptional()
-    @IsBoolean()
-    status: boolean;
+    @IsString()
+    @IsIn(['pendente', 'concluida'], { message: 'O status deve ser "pendente" ou "concluida"' })
+    status: 'pendente' | 'concluida' = 'pendente';
 }
