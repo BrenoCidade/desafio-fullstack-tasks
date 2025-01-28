@@ -1,26 +1,74 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { PrismaService } from 'src/database/prisma.service';
+import { Tasks } from '@prisma/client';
 
 @Injectable()
 export class TasksService {
-  create(createTaskDto: CreateTaskDto) {
-    return 'This action adds a new task';
+  constructor(private prisma: PrismaService) { }
+
+  async create(createTaskDto: CreateTaskDto): Promise<Tasks> {
+    const taskCreated = this.prisma.tasks.create({ data: createTaskDto })
+    return taskCreated;
   }
 
-  findAll() {
-    return `This action returns all tasks`;
+  async findAll(): Promise<Tasks[]> {
+    return this.prisma.tasks.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} task`;
+  async findById(id: number): Promise<Tasks> {
+    const task = await this.prisma.tasks.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+
+    return task;
   }
 
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    return `This action updates a #${id} task`;
+  async update(id: number, updateTaskDto: UpdateTaskDto): Promise<Tasks> {
+    const { title, description, status } = updateTaskDto;
+
+    const task = await this.prisma.tasks.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+
+    return this.prisma.tasks.update({
+      where: {
+        id: id,
+      },
+      data: { title, description, status },
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} task`;
+  async delete(id: number) {
+    const task = await this.prisma.tasks.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+
+    return this.prisma.tasks.delete({
+      where: {
+        id: id
+      },
+    });
+
+
   }
 }
