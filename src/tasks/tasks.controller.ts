@@ -3,6 +3,7 @@ import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { ApiBody } from '@nestjs/swagger';
+import { Tasks } from '@prisma/client';
 
 @Controller('tasks')
 export class TasksController {
@@ -14,28 +15,28 @@ export class TasksController {
   })
   @HttpCode(201)
   @Post()
-  create(@Body() createTaskDto: CreateTaskDto) {
+  async create(@Body() createTaskDto: CreateTaskDto): Promise<Tasks> {
     return this.tasksService.create(createTaskDto);
   }
 
   @Get()
-  findAll() {
+  async findAll(): Promise<Tasks[]> {
     return this.tasksService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<Tasks> {
     return this.tasksService.findById(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
+  async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto): Promise<Tasks> {
     return this.tasksService.update(+id, updateTaskDto);
   }
 
   @HttpCode(204)
   @Delete(':id')
-  delete(@Param('id') id: string) {
+  async delete(@Param('id') id: string) {
     return this.tasksService.delete(+id);
   }
 }
